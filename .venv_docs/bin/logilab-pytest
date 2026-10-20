@@ -1,0 +1,7 @@
+#!/home/eva/14_Bio_Data/.venv_docs/bin/python3
+
+import warnings
+warnings.simplefilter('default', DeprecationWarning)
+
+from logilab.common.pytest import run
+run()
