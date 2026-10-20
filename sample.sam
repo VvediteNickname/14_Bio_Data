@@ -1,0 +1,7 @@
+@HD	VN:1.6	SO:coordinate
+@SQ	SN:chr1	LN:1000
+@SQ	SN:chr2	LN:800
+@RG	ID:sample1	SM:demo
+@PG	ID:demo-aligner	PN:demo-aligner	VN:1.0
+read_001	0	chr1	100	60	10M	*	0	0	ACGTACGTAA	FFFFFFFFFF	RG:Z:sample1
+read_002	0	chr2	250	45	5M1I4M	*	0	0	ACGTACGTAA	FFFFFFFFFF	RG:Z:sample1

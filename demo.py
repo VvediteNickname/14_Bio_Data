@@ -1,7 +1,6 @@
 '''
 from fasta_reader import FastaReader
 from fastq_reader import FastqReader
-from sam_reader import SamReader
 '''
 from vcf_reader import VcfReader
 
@@ -50,3 +49,45 @@ if file_format in "vcf":
 
     n = sum(1 for _ in r.get_region("1", 9000001, 9100000))
     print(f"\nВариантов в 1:9000001-9100000 = {n}")
+
+'''
+    Часть для sam-файлов.
+'''
+from sam_reader import SamReader
+if file_format == "sam":
+
+    print("Выберите файл для тестирования: sample.sam, example.sam")
+    filename = input().strip()
+
+    print("=" * 33)
+
+    r = SamReader(filename)
+
+    r._load_header()
+
+    print("Мета-строки:")
+
+    for m in r.get_meta_lines():
+        print(" ", m)
+
+    print("\nPG ID:", " ".join(r.get_group_ids("PG")))
+    print("RG ID:", " ".join(r.get_group_ids("RG")))
+    print("SQ ID:", " ".join(r.get_group_ids("SQ")))
+
+    print("\nКол-во выравниваний:", r.count_records())
+
+    print("\nСтатистика по хромосомам:")
+
+    stats = r.chromosome_stats()
+    print(stats)
+
+    print("\nВыравнивания в регионе chr1:100-500:")
+
+    n = sum(1 for _ in r.get_region("chr1", 100, 500))
+
+    print(f"Кол-во выравниваний в chr1:100-500 = {n}")
+
+    # ГАЙД: как запустить SAM - файл:
+    #python3 -m venv .venv
+    #source .venv/bin/activate
+    #python -m pip install pandas
