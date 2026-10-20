@@ -1,7 +1,4 @@
-'''
-from fasta_reader import FastaReader
-from fastq_reader import FastqReader
-'''
+from sequence_reader import FastaReader, FastqReader
 from vcf_reader import VcfReader
 
 
@@ -91,3 +88,51 @@ if file_format == "sam":
     #python3 -m venv .venv
     #source .venv/bin/activate
     #python -m pip install pandas
+
+
+
+'''
+    ЧАСТЬ ДЛЯ FASTA
+'''
+if file_format == "fasta":
+    print("Выберите файл для тестирования:")
+    filename = input()
+    
+    # создаем робота для FASTA
+    r = FastaReader(filename)
+    
+    # считаем количество и выводим
+    count = r.get_sequences_count()
+    print("Количество последовательностей в файле:")
+    print(count)
+    
+    # считаем среднюю длину и выводим
+    avg_len = r.get_average_length()
+    print("Средняя длина последовательностей:")
+    print(avg_len)
+
+
+'''
+    ЧАСТЬ ДЛЯ FASTQ
+'''
+if file_format == "fastq":
+    print("Выберите файл для тестирования:")
+    filename = input()
+    
+    # создаем робота для FASTQ
+    r = FastqReader(filename)
+    
+    # считаем количество и выводим
+    count = r.get_sequences_count()
+    print("Количество последовательностей в файле:")
+    print(count)
+    
+    # считаем среднюю длину и выводим
+    avg_len = r.get_average_length()
+    print("Средняя длина последовательностей:")
+    print(avg_len)
+    
+    # запускаем создание картинки с графиком
+    print("Строим и сохраняем график качества...")
+    r.plot_quality()
+
