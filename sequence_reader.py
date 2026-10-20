@@ -163,7 +163,7 @@ class FastqReader(SequenceReader):
 
                 # Проверка ошибок:
                 if self.validate_sequence(dna) == False:
-                    print("Внимание! В FASTQ нашли плохие буквы!")
+                    print("Внимание! В FASTQ нашли другие буквы!")
                 if len(dna) != len(quality):
                     print("Ошибка: Кол-во букв и значков качества не совпадает!")
                 yield name, dna, quality
