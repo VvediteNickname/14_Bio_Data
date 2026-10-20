@@ -3,7 +3,8 @@ from fasta_reader import FastaReader
 from fastq_reader import FastqReader
 '''
 from vcf_reader import VcfReader
-
+from sam_reader import SamReader
+from sequence_reader import FastaReader, FastqReader
 
 '''
     Общая красивенькая часть
@@ -53,7 +54,7 @@ if file_format in "vcf":
 '''
     Часть для sam-файлов.
 '''
-from sam_reader import SamReader
+
 if file_format == "sam":
 
     print("Выберите файл для тестирования: sample.sam, example.sam")
@@ -91,3 +92,65 @@ if file_format == "sam":
     #python3 -m venv .venv
     #source .venv/bin/activate
     #python -m pip install pandas
+
+'''
+    Часть для fasta-файлов.
+'''
+
+if file_format == "fasta":
+
+    print("Выберите файл для тестирования: sample.fasta")
+    filename = input().strip()
+    print("=" * 33)
+
+    r = FastaReader(filename)
+
+    print("Общая статистика по файлу:")
+    print("Кол-во последовательностей:", r.get_sequences_count())
+    print("Средняя длина последовательностей:", r.get_average_length())
+
+    print("\nВывод первых трех последовательностей:")
+    count = 0
+    for name, dna in r.read():
+        # Выводим только начало последовательности, чтобы не засорять консоль
+        short_dna = dna[:50] + "..." if len(dna) > 50 else dna
+        print(f"  >{name}")
+        print(f"  {short_dna}")
+        count += 1
+        if count >= 3:
+            print("  ... (остальные последовательности скрыты для экономии места)")
+            break
+
+
+'''
+    Часть для fastq-файлов.
+'''
+
+if file_format == "fastq":
+
+    print("Выберите файл для тестирования: sample.fastq")
+    filename = input().strip()
+    print("=" * 33)
+
+    r = FastqReader(filename)
+
+    print("Общая статистика по файлу:")
+    print("Кол-во последовательностей:", r.get_sequences_count())
+    print("Средняя длина последовательностей:", r.get_average_length())
+
+    print("\nВывод первых трех последовательностей (с качеством):")
+    count = 0
+    for name, dna, quality in r.read():
+        short_dna = dna[:50] + "..." if len(dna) > 50 else dna
+        short_qual = quality[:50] + "..." if len(quality) > 50 else quality
+        print(f"  @{name}")
+        print(f"  {short_dna}")
+        print(f"  +")
+        print(f"  {short_qual}")
+        count += 1
+        if count >= 3:
+            print("  ... (остальные последовательности скрыты для экономии места)")
+            break
+
+    print("\nПостроение графика качества (Per base sequence quality)...")
+    r.plot_quality()
