@@ -1,0 +1,151 @@
+:root {
+  --mint-bg: #D9F0E1;
+  --mint-strong: #B6E3C8;
+  --mint-soft: #EAF7EE;
+  --sage: #8FBE9D;
+  --leaf: #477653;
+  --deep: #254B35;
+  --ink: #34483A;
+  --paper: #FBFDF9;
+  --line: #A8CFB3;
+  --shadow: rgba(47, 91, 59, .10);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--mint-bg) !important;
+  color: var(--ink);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+.wy-nav-side {
+  background: #B6E3C8 !important;
+  border-right: 2px solid #94CBA6;
+}
+.wy-side-nav-search {
+  background: #A7DAB9 !important;
+  border-radius: 0 0 22px 22px;
+  padding: 18px 12px;
+}
+.wy-side-nav-search input {
+  border: 2px solid #83B995 !important;
+  border-radius: 14px !important;
+}
+.wy-menu-vertical a {
+  color: #254B35 !important;
+  border-radius: 12px;
+  margin: 3px 8px;
+  padding: 9px 12px;
+}
+.wy-menu-vertical a:hover,
+.wy-menu-vertical li.current > a {
+  background: #DFF3E5 !important;
+  color: #244A33 !important;
+}
+.wy-menu-vertical li.current > a {
+  border-left: 3px solid #477653;
+}
+.wy-nav-content-wrap { background: transparent !important; }
+.wy-nav-content {
+  max-width: 1120px;
+  background: var(--paper) !important;
+  border: 2px solid #C4E4CC;
+  border-radius: 26px;
+  margin: 22px auto;
+  box-shadow: 0 12px 34px var(--shadow);
+  padding: 2.5em 3em;
+  position: relative;
+  z-index: 1;
+}
+h1, h2, h3, h4 {
+  color: var(--deep) !important;
+  font-family: Georgia, "Times New Roman", serif;
+}
+h1 { border-bottom: 2px solid var(--line); padding-bottom: .35em; }
+h2 { border-bottom: 1px solid #D5EBDD; padding-bottom: .25em; }
+a { color: #34764A !important; }
+a:hover { color: #204E30 !important; }
+.rst-content code, .rst-content tt {
+  color: #28563A;
+  background: #EAF6ED;
+  border: 1px solid #CBE5D1;
+  border-radius: 6px;
+  padding: 2px 5px;
+}
+.rst-content pre {
+  background: #F0F8F1 !important;
+  border: 1px solid #C5E1CB;
+  border-radius: 16px;
+  padding: 16px;
+}
+.rst-content table.docutils {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.rst-content table.docutils th {
+  background: #D7EEDD;
+  color: var(--deep);
+}
+.rst-content table.docutils td { background: #FBFDF9; }
+.rst-content .note, .rst-content .tip, .rst-content .warning {
+  border-radius: 14px;
+  border: 1px solid #B8DCC2;
+  box-shadow: 0 4px 12px var(--shadow);
+}
+.rst-content .note .admonition-title,
+.rst-content .tip .admonition-title { background: #D7EEDD; color: var(--deep); }
+.rst-content .warning .admonition-title { background: #F3E7C7; color: #66531D; }
+
+.hero-panel {
+  background: linear-gradient(135deg, #D4F0DE, #ECF8EF);
+  border: 2px solid #A8D5B5;
+  border-radius: 24px;
+  padding: 26px 28px;
+  margin: 0 0 28px;
+  box-shadow: 0 8px 20px var(--shadow);
+}
+.hero-panel h2 { border: 0; margin: 8px 0; font-size: 1.8em; }
+.hero-kicker { letter-spacing: .16em; color: #477653; font-size: .78em; font-weight: bold; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.hero-tags span {
+  border: 1px solid #9FCBAA;
+  border-radius: 999px;
+  background: #F8FCF8;
+  padding: 5px 12px;
+  color: #315E3D;
+  font-size: .85em;
+}
+.feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0 26px; }
+.feature-card {
+  background: #F5FBF6;
+  border: 1.5px solid #B8DCC2;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 5px 14px var(--shadow);
+}
+.feature-card h3 { margin-top: 4px; }
+.feature-card p { margin-bottom: 0; }
+.feature-icon { font-size: 1.7em; }
+
+@media screen and (min-width: 1200px) {
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    top: 80px;
+    bottom: 18px;
+    width: 86px;
+    background-repeat: repeat-y;
+    background-size: contain;
+    opacity: .9;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before { left: 245px; background-image: url("vine_left.svg"); }
+  body::after { right: 8px; background-image: url("vine_right.svg"); }
+}
+@media screen and (max-width: 1199px) {
+  .wy-nav-content { margin: 12px; padding: 1.5em; border-radius: 20px; }
+}
+@media screen and (max-width: 600px) {
+  .feature-grid { grid-template-columns: 1fr; }
+}

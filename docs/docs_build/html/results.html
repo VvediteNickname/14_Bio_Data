@@ -1,0 +1,161 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Примеры результатов &mdash; Программа для работы с основными биологическими форматами</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3e601a88" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Техническая документация" href="documentation.html" />
+    <link rel="prev" title="Программа для работы с основными биологическими форматами" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #A9DFC0" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Программа для работы с основными биологическими форматами
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Разделы сайта</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Примеры результатов</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sam">SAM: выравнивания</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vcf">VCF: генетические варианты</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastq">График качества FASTQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Техническая документация</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Краткая научная справка</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #A9DFC0" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Программа для работы с основными биологическими форматами</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Примеры результатов</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/results.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>Примеры результатов<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<p>Ниже приведены краткие фрагменты демонстрационного вывода для файлов <code class="docutils literal notranslate"><span class="pre">sample.sam</span></code> и <code class="docutils literal notranslate"><span class="pre">sample.vcf</span></code>, размещённых в репозитории. Количественные значения соответствуют записям этих файлов и логике демонстрационной программы.</p>
+<section id="sam">
+<h2>SAM: выравнивания<a class="headerlink" href="#sam" title="Link to this heading"></a></h2>
+<p>При выборе <code class="docutils literal notranslate"><span class="pre">sam</span></code> и файла <code class="docutils literal notranslate"><span class="pre">sample.sam</span></code> программа считывает две записи выравнивания. В сводке по хромосомам отображается по одной записи для <code class="docutils literal notranslate"><span class="pre">chr1</span></code> и <code class="docutils literal notranslate"><span class="pre">chr2</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PG ID: demo-aligner
+RG ID: sample1
+SQ ID: chr1 chr2
+
+Кол-во выравниваний: 2
+
+Статистика по хромосомам:
+  chrom  alignments
+0  chr1           1
+1  chr2           1
+
+Выравнивания в регионе chr1:100-500:
+Кол-во выравниваний в chr1:100-500 = 1
+</pre></div>
+</div>
+</section>
+<section id="vcf">
+<h2>VCF: генетические варианты<a class="headerlink" href="#vcf" title="Link to this heading"></a></h2>
+<p>При выборе <code class="docutils literal notranslate"><span class="pre">vcf</span></code> и файла <code class="docutils literal notranslate"><span class="pre">sample.vcf</span></code> программа получает пять вариантов. При группировке с размером окна 100 000 позиций все четыре варианта <code class="docutils literal notranslate"><span class="pre">chr1</span></code> попадают в первое окно этой хромосомы, а вариант <code class="docutils literal notranslate"><span class="pre">chr2</span></code> — в первое окно <code class="docutils literal notranslate"><span class="pre">chr2</span></code>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>fileformat: VCFv4.2
+source: myCaller
+Колонки: CHROM POS ID REF ALT QUAL FILTER INFO FORMAT SAMPLE1
+Кол-во вариантов: 5
+
+Статистика по регионам (окно 100000):
+  chrom  start     end  count
+0  chr1      1  100000      4
+1  chr2      1  100000      1
+
+Вариантов в 1:9000001-9100000 = 0
+</pre></div>
+</div>
+<p>Последняя строка показывает результат запроса именно для координат <code class="docutils literal notranslate"><span class="pre">1:9000001–9100000</span></code>. В тестовом файле <code class="docutils literal notranslate"><span class="pre">sample.vcf</span></code> записи находятся в других позициях, поэтому для указанного интервала совпадений нет.</p>
+</section>
+<section id="fastq">
+<h2>График качества FASTQ<a class="headerlink" href="#fastq" title="Link to this heading"></a></h2>
+<p>Для FASTQ также строится график оценок качества по позициям нуклеотидов в прочтениях. По оси X отложена позиция в последовательности, по оси Y — оценка качества, отображённая в исходном графике.</p>
+<a class="reference internal image-reference" href="_images/quality_plot.png"><img alt="График качества FASTQ по позициям нуклеотидов" class="align-center" src="_images/quality_plot.png" style="width: 90%;" />
+</a>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Программа для работы с основными биологическими форматами" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Техническая документация" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Команда проекта.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
