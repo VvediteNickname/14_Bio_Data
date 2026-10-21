@@ -1,16 +1,30 @@
 from abc import ABC, abstractmethod
-import re
+from reader import Reader   
 
 
-class GenomicDataReader(ABC):
+class GenomicDataReader(Reader):  
     """Базовый класс: общие поля, общий заголовок, общее количество записей,
     общий поиск по региону. Формат-специфика — в наследниках."""
 
     def __init__(self, path: str):
-        self.path = path
-        self._meta_lines: list[str] = []   # строки заголовка как есть
-        self._header_line: str = ""        # строка с именами колонок (если есть)
-        self._columns: list[str] = []      # колонки этой строки
+        # Передаем путь в родительский класс Reader
+        super().__init__(path)  
+        
+        # Оставляем self.path, чтобы не переписывать весь код в SamReader и VcfReader
+        self.path = path  
+        
+        self._meta_lines: list[str] = []
+        self._header_line: str = ""
+        self._columns: list[str] = []
+        self._header_loaded = False  # ← Полезно вынести сюда, чтобы не дублировать в SAM и VCF
+
+    # ← ДОБАВЛЕНО: мостик между контрактом Reader (read) и итерацией (__iter__)
+    def read(self):
+        """
+        Реализация абстрактного метода из Reader.
+        Перенаправляет вызов на __iter__, который реализован в наследниках.
+        """
+        return self.__iter__()
 
     # ---------- ОБЩЕЕ: одинаково у VCF и SAM ----------
 
@@ -39,7 +53,7 @@ class GenomicDataReader(ABC):
         решает наследник в _record_interval()."""
         if start > end:
             raise ValueError("start > end")
-        for rec in self:                              # ленивая итерация
+        for rec in self:
             r_chrom, r_start, r_end = self._record_interval(rec)
             if r_chrom != chrom:
                 continue
@@ -79,5 +93,5 @@ class GenomicDataReader(ABC):
     def get_meta_value(self, key: str):
         """Значение простого ключа заголовка.
         VCF: '##source=myCaller' -> 'myCaller'
-        SAM: '@HD\\tVN:1.6'      -> 'VN:1.6' (как договоритесь)"""
+        SAM: '@HD\\tVN:1.6'      -> 'VN:1.6'"""
         ...

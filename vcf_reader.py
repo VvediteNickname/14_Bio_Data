@@ -28,10 +28,20 @@ class VcfReader(GenomicDataReader):
                     break
                 else:
                     raise ValueError("Данные до заголовка #CHROM — это не VCF")
+            else:
+                # проверка [в файле вообще нет строки #CHROM — это не VCF (или файл пуст)]
+                raise ValueError(
+                    f"VCF: в файле {self.path} нет строки #CHROM — это не VCF или файл пуст"
+                )
         self._header_loaded = True
 
     # ---------- VCF-специфичные парсеры заголовка ----------
     def get_group_ids(self, group):
+
+        # проверка [group — непустая строка]
+        if not isinstance(group, str) or not group:
+            raise ValueError("group должен быть непустой строкой")
+        
         self._load_header()
         pattern = re.compile(rf"^##{group}=<ID=([^,>]+)")
         result = []
@@ -42,6 +52,11 @@ class VcfReader(GenomicDataReader):
         return result
 
     def get_meta_value(self, key):
+
+        # проверка [key — непустая строка]
+        if not isinstance(key, str) or not key:
+            raise ValueError("key должен быть непустой строкой")
+        
         self._load_header()
         prefix = f"##{key}="
         for line in self._meta_lines:
@@ -52,7 +67,24 @@ class VcfReader(GenomicDataReader):
     # ---------- парсинг одной строки данных ----------
     def _parse_line(self, line):
         fields = line.rstrip("\n").split("\t")
+
+        # проверка [в строке минимум 8 колонок — иначе нечего распаковывать]
+        if len(fields) < 8:
+            raise ValueError(
+                f"VCF: ожидалось минимум 8 колонок, получено {len(fields)}: "
+                f"{line[:80]!r}"
+            )
+
         chrom, pos, vid, ref, alt, qual, filt, info = fields[:8]
+
+        # проверка [REF не пустой и не '.', иначе _record_interval даст end < pos]
+        if not ref or ref == ".":
+            raise ValueError(f"VCF: REF пустой в позиции {chrom}:{pos}")
+
+        # проверка [POS — целое положительное число]
+        pos_int = int(pos)  # ValueError, если не число
+        if pos_int <= 0:
+            raise ValueError(f"VCF: POS должен быть > 0, получено {pos_int} в {chrom}")
 
         info_dict = {}
         if info and info != ".":
@@ -99,6 +131,13 @@ class VcfReader(GenomicDataReader):
 
     # ---------- статистика (VCF-специфична) ----------
     def region_count_stats(self, bin_size=100000, chrom=None):
+
+        # проверка [bin_size — положительное целое, иначе ZeroDivisionError]
+        if not isinstance(bin_size, int) or bin_size <= 0:
+            raise ValueError(
+                f"bin_size должен быть положительным целым, получено {bin_size!r}"
+            )
+
         rows = []
         for v in self:
             if chrom is not None and v["chrom"] != chrom:

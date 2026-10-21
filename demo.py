@@ -1,7 +1,6 @@
 from sequence_reader import FastaReader, FastqReader
 from vcf_reader import VcfReader
 from sam_reader import SamReader
-from sequence_reader import FastaReader, FastqReader
 
 '''
     Общая красивенькая часть
@@ -9,7 +8,9 @@ from sequence_reader import FastaReader, FastqReader
 print("=" * 33)
 print("Выберите формат тестируемого файла (fasta, fastq, sam, vcf): ")
 file_format = input()
-
+while file_format not in "fasta fastq sam vcf":
+    print("Вероятно, вы опечатались, попробуйте снова")
+    file_format = input()
 
 
 
@@ -90,14 +91,13 @@ if file_format == "sam":
     #source .venv/bin/activate
     #python -m pip install pandas
 
-<<<<<<< HEAD
 
 
 '''
     ЧАСТЬ ДЛЯ FASTA
 '''
 if file_format == "fasta":
-    print("Выберите файл для тестирования:")
+    print("Выберите файл для тестирования: Human_DNA_fragment.fasta")
     filename = input()
     
     # создаем робота для FASTA
@@ -118,7 +118,7 @@ if file_format == "fasta":
     ЧАСТЬ ДЛЯ FASTQ
 '''
 if file_format == "fastq":
-    print("Выберите файл для тестирования:")
+    print("Выберите файл для тестирования: 1_control_18S_2019_minq7 - Copy.fastq")
     filename = input()
     
     # создаем робота для FASTQ
@@ -138,66 +138,3 @@ if file_format == "fastq":
     print("Строим и сохраняем график качества...")
     r.plot_quality()
 
-=======
-'''
-    Часть для fasta-файлов.
-'''
-
-if file_format == "fasta":
-
-    print("Выберите файл для тестирования: sample.fasta")
-    filename = input().strip()
-    print("=" * 33)
-
-    r = FastaReader(filename)
-
-    print("Общая статистика по файлу:")
-    print("Кол-во последовательностей:", r.get_sequences_count())
-    print("Средняя длина последовательностей:", r.get_average_length())
-
-    print("\nВывод первых трех последовательностей:")
-    count = 0
-    for name, dna in r.read():
-        # Выводим только начало последовательности, чтобы не засорять консоль
-        short_dna = dna[:50] + "..." if len(dna) > 50 else dna
-        print(f"  >{name}")
-        print(f"  {short_dna}")
-        count += 1
-        if count >= 3:
-            print("  ... (остальные последовательности скрыты для экономии места)")
-            break
-
-
-'''
-    Часть для fastq-файлов.
-'''
-
-if file_format == "fastq":
-
-    print("Выберите файл для тестирования: sample.fastq")
-    filename = input().strip()
-    print("=" * 33)
-
-    r = FastqReader(filename)
-
-    print("Общая статистика по файлу:")
-    print("Кол-во последовательностей:", r.get_sequences_count())
-    print("Средняя длина последовательностей:", r.get_average_length())
-
-    print("\nВывод первых трех последовательностей (с качеством):")
-    count = 0
-    for name, dna, quality in r.read():
-        short_dna = dna[:50] + "..." if len(dna) > 50 else dna
-        short_qual = quality[:50] + "..." if len(quality) > 50 else quality
-        print(f"  @{name}")
-        print(f"  {short_dna}")
-        print(f"  +")
-        print(f"  {short_qual}")
-        count += 1
-        if count >= 3:
-            print("  ... (остальные последовательности скрыты для экономии места)")
-            break
-
-    print("\nПостроение графика качества (Per base sequence quality)...")
-    r.plot_quality()
->>>>>>> 11f9ca0cc1283072b4d8352dfc90ff163215f229
