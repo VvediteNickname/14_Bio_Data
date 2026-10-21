@@ -51,5 +51,6 @@
    :caption: Разделы сайта
 
    results
+   uml
    documentation
    glossary
