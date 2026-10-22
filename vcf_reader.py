@@ -4,14 +4,47 @@ from genomic_data_reader import GenomicDataReader
 
 
 class VcfReader(GenomicDataReader):
+    """Чтение VCF-файлов.
+
+    Класс обеспечивает разбор заголовка VCF, извлечение метаданных,
+    последовательную итерацию по вариантам, подсчёт статистики по регионам
+    и совместимость с интерфейсом :class:`GenomicDataReader`.
+
+    Attributes:
+        path (str): Путь к VCF-файлу (наследуется от GenomicDataReader).
+        _header_loaded (bool): Флаг, указывающий, загружен ли заголовок.
+        _n_header_lines (int): Число строк заголовка (``##`` и ``#CHROM``).
+        _meta_lines (list[str]): Строки метаданных ``##``.
+        _header_line (str): Строка ``#CHROM ...``.
+        _columns (list[str]): Имена колонок из строки ``#CHROM``.
+    """
 
     def __init__(self, path: str):
+        """Инициализирует читатель VCF-файла.
+
+        Args:
+            path (str): Путь к VCF-файлу.
+        """
         super().__init__(path)
         self._header_loaded = False
         self._n_header_lines = 0
 
     # ---------- заголовок ----------
     def _load_header(self) -> None:
+        """Загружает заголовок VCF-файла.
+
+        Читает строки метаданных ``##`` в ``self._meta_lines`` и строку
+        ``#CHROM`` в ``self._header_line`` / ``self._columns``, подсчитывая
+        общее число строк заголовка в ``self._n_header_lines``.
+        Повторный вызов не перечитывает файл.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: Если данные встречаются до строки ``#CHROM`` или
+                строка ``#CHROM`` отсутствует (файл пуст или не является VCF).
+        """
         if self._header_loaded:
             return
         self._n_header_lines = 0
@@ -37,6 +70,20 @@ class VcfReader(GenomicDataReader):
 
     # ---------- VCF-специфичные парсеры заголовка ----------
     def get_group_ids(self, group):
+        """Возвращает список ID для указанной группы метаданных VCF.
+
+        Ищет строки вида ``##<group>=<ID=...>`` и извлекает значения ``ID``.
+
+        Args:
+            group (str): Имя группы метаданных (например, ``"INFO"``,
+                ``"FILTER"``, ``"FORMAT"``, ``"contig"``).
+
+        Returns:
+            list[str]: Список значений ``ID`` в порядке следования строк.
+
+        Raises:
+            ValueError: Если ``group`` не является непустой строкой.
+        """
 
         # проверка [group — непустая строка]
         if not isinstance(group, str) or not group:
@@ -52,6 +99,20 @@ class VcfReader(GenomicDataReader):
         return result
 
     def get_meta_value(self, key):
+        """Возвращает первое значение метаданных по ключу.
+
+        Ищет строку вида ``##<key>=<value>`` и возвращает часть после ``=``.
+
+        Args:
+            key (str): Имя ключа метаданных (например, ``"fileformat"``,
+                ``"reference"``).
+
+        Returns:
+            str | None: Значение ключа или ``None``, если ключ не найден.
+
+        Raises:
+            ValueError: Если ``key`` не является непустой строкой.
+        """
 
         # проверка [key — непустая строка]
         if not isinstance(key, str) or not key:
@@ -66,6 +127,23 @@ class VcfReader(GenomicDataReader):
 
     # ---------- парсинг одной строки данных ----------
     def _parse_line(self, line):
+        """Разбирает одну строку данных VCF.
+
+        Извлекает обязательные колонки, разбирает поле ``INFO`` в словарь
+        и приводит ``QUAL`` к ``float`` (или ``None`` для ``"."``). Поля
+        ``FORMAT`` и образцы сохраняются как есть.
+
+        Args:
+            line (str): Строка данных VCF.
+
+        Returns:
+            dict: Словарь с ключами ``chrom``, ``pos``, ``id``, ``ref``,
+            ``alt``, ``qual``, ``filt``, ``info``, ``format``, ``samples``.
+
+        Raises:
+            ValueError: Если в строке меньше 8 колонок, ``REF`` пустой или
+                равен ``"."``, либо ``POS`` не является положительным целым.
+        """
         fields = line.rstrip("\n").split("\t")
 
         # проверка [в строке минимум 8 колонок — иначе нечего распаковывать]
@@ -112,6 +190,14 @@ class VcfReader(GenomicDataReader):
 
     # ---------- итерация ----------
     def __iter__(self):
+        """Последовательно выдаёт варианты VCF.
+
+        Пропускает строки заголовка и пустые строки. Каждая строка данных
+        разбирается методом :meth:`_parse_line`.
+
+        Yields:
+            dict: Очередной разобранный вариант VCF.
+        """
         self._load_header()
         with open(self.path, "r", encoding="utf-8") as f:
             for i, line in enumerate(f):
@@ -123,14 +209,49 @@ class VcfReader(GenomicDataReader):
 
     # ---------- интервал варианта (для get_region из родителя) ----------
     def _record_interval(self, v):
+        """Возвращает интервал варианта на референсе.
+
+        Args:
+            v (dict): Разобранный вариант VCF.
+
+        Returns:
+            tuple[str, int, int]: Кортеж ``(хромосома, начало, конец)``,
+            где конец вычисляется как ``pos + len(ref) - 1``.
+        """
         return (v["chrom"], v["pos"], v["pos"] + len(v["ref"]) - 1)
 
     # ---------- «человеческие» обёртки ----------
     def count_variants(self):
+        """Возвращает общее число вариантов в файле.
+
+        Является удобной обёрткой над :meth:`count_records`.
+
+        Returns:
+            int: Число вариантов.
+        """
         return self.count_records()
 
     # ---------- статистика (VCF-специфична) ----------
     def region_count_stats(self, bin_size=100000, chrom=None):
+        """Считает число вариантов по бинам заданного размера.
+
+        Разбивает координаты на бины шириной ``bin_size`` (1-based) и
+        подсчитывает число вариантов в каждом бине. При необходимости
+        ограничивает подсчёт одной хромосомой.
+
+        Args:
+            bin_size (int, optional): Размер бина в парах оснований.
+                Должен быть положительным целым. По умолчанию ``100000``.
+            chrom (str | None, optional): Если задано, учитываются только
+                варианты указанной хромосомы. По умолчанию ``None``.
+
+        Returns:
+            pd.DataFrame: Таблица с колонками ``chrom``, ``start``, ``end``,
+            ``count``. Пустая таблица с теми же колонками, если вариантов нет.
+
+        Raises:
+            ValueError: Если ``bin_size`` не является положительным целым.
+        """
 
         # проверка [bin_size — положительное целое, иначе ZeroDivisionError]
         if not isinstance(bin_size, int) or bin_size <= 0:
@@ -154,3 +275,4 @@ class VcfReader(GenomicDataReader):
                    .reset_index(name="count"))
         stats["end"] = stats["start"] + bin_size - 1
         return stats[["chrom", "start", "end", "count"]]
+        
