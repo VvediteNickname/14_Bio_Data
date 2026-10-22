@@ -5,16 +5,39 @@ from genomic_data_reader import GenomicDataReader
 
 
 class SamReader(GenomicDataReader):
-    """Чтение SAM-файлов."""
+    """Чтение SAM-файлов.
+
+    Класс предоставляет последовательный доступ к записям выравнивания SAM,
+    разбор заголовка, извлечение метаданных и подсчёт статистики по хромосомам.
+
+    Attributes:
+        CIGAR_PATTERN (re.Pattern): Регулярное выражение для разбора CIGAR-строк.
+        path (str): Путь к SAM-файлу (наследуется от GenomicDataReader).
+        _header_loaded (bool): Флаг, указывающий, загружен ли заголовок.
+        _meta_lines (list[str]): Строки заголовка SAM-файла.
+    """
 
     CIGAR_PATTERN = re.compile(r"(\d+)([MIDNSHP=X])")
 
     def __init__(self, path: str):
+        """Инициализирует читатель SAM-файла.
+
+        Args:
+            path (str): Путь к SAM-файлу.
+        """
         super().__init__(path)
         self._header_loaded = False
 
     def _load_header(self) -> None:
-        """Загружает строки заголовка до первой записи выравнивания."""
+        """Загружает строки заголовка до первой записи выравнивания.
+
+        Читает файл построчно и сохраняет все строки, начинающиеся с ``@``,
+        в ``self._meta_lines``. Останавливается на первой строке, не являющейся
+        частью заголовка. Повторный вызов не перечитывает файл.
+
+        Returns:
+            None
+        """
         if self._header_loaded:
             return
 
@@ -31,7 +54,20 @@ class SamReader(GenomicDataReader):
         self._header_loaded = True
 
     def get_group_ids(self, group: str) -> list[str]:
-        """Возвращает идентификаторы записей выбранной группы заголовка."""
+        """Возвращает идентификаторы записей выбранной группы заголовка.
+
+        Для групп ``SQ`` и ``HD`` ищет поле ``SN`` или ``ID`` соответственно.
+        Для группы ``CO`` возвращает текст комментария. Для прочих групп
+        используется ключ ``ID``.
+
+        Args:
+            group (str): Имя группы заголовка (например, ``"SQ"``, ``"HD"``,
+                ``"CO"``). Ведущий символ ``@`` игнорируется.
+
+        Returns:
+            list[str]: Список идентификаторов (или текстов комментариев для
+            группы ``CO``) в порядке следования строк заголовка.
+        """
         self._load_header()
         group = group.lstrip("@")
         result = []
@@ -54,7 +90,18 @@ class SamReader(GenomicDataReader):
         return result
 
     def get_meta_value(self, key: str):
-        """Возвращает первое значение ключа из заголовка, либо None."""
+        """Возвращает первое значение ключа из заголовка, либо None.
+
+        Просматривает все поля всех строк заголовка и возвращает значение
+        первого поля, начинающегося с ``key + ":"``.
+
+        Args:
+            key (str): Имя ключа метаданных (например, ``"VN"``, ``"SO"``).
+
+        Returns:
+            str | None: Значение ключа без префикса или ``None``, если ключ
+            не найден.
+        """
         self._load_header()
         for line in self._meta_lines:
             for field in line.split("\t")[1:]:
@@ -63,7 +110,24 @@ class SamReader(GenomicDataReader):
         return None
 
     def _parse_line(self, line: str) -> dict:
-        """Разбирает одну строку выравнивания SAM."""
+        """Разбирает одну строку выравнивания SAM.
+
+        Преобразует обязательные поля записи SAM в словарь, приводя числовые
+        поля к ``int``. Дополнительные поля сохраняются в ключе ``tags``
+        без преобразования.
+
+        Args:
+            line (str): Строка SAM-файла с записью выравнивания.
+
+        Returns:
+            dict: Словарь с ключами ``name``, ``flag``, ``chrom``, ``pos``,
+            ``mapq``, ``cigar``, ``rnext``, ``pnext``, ``tlen``, ``seq``,
+            ``qual`` и ``tags``.
+
+        Raises:
+            ValueError: Если в строке меньше 11 полей или числовое поле
+                некорректно.
+        """
         fields = line.rstrip("\r\n").split("\t")
         if len(fields) < 11:
             raise ValueError("В записи SAM должно быть не менее 11 полей")
@@ -91,7 +155,14 @@ class SamReader(GenomicDataReader):
         return record
 
     def __iter__(self):
-        """Последовательно выдаёт записи, не загружая весь файл в память."""
+        """Последовательно выдаёт записи, не загружая весь файл в память.
+
+        Пропускает пустые строки и строки заголовка. Каждая запись
+        разбирается методом :meth:`_parse_line`.
+
+        Yields:
+            dict: Очередная разобранная запись выравнивания SAM.
+        """
         self._load_header()
         with open(self.path, "r", encoding="utf-8") as file:
             for line in file:
@@ -100,7 +171,23 @@ class SamReader(GenomicDataReader):
                 yield self._parse_line(line)
 
     def _record_interval(self, record):
-        """Возвращает (хромосома, начало, конец) для выравнивания."""
+        """Возвращает интервал выравнивания на референсе.
+
+        Вычисляет длину участка на референсе по CIGAR-строке, учитывая
+        операции ``M``, ``D``, ``N``, ``=`` и ``X``.
+
+        Args:
+            record (dict): Разобранная запись выравнивания SAM.
+
+        Returns:
+            tuple[str, int, int]: Кортеж ``(хромосома, начало, конец)``.
+            Для несопоставленных записей (``chrom == "*"``, ``pos == 0``
+            или ``cigar == "*"``) возвращается ``(chrom, start, start)``.
+
+        Raises:
+            ValueError: Если CIGAR-строка некорректна или не задаёт длину
+                на референсе.
+        """
         chrom = record["chrom"]
         start = record["pos"]
         cigar = record["cigar"]
@@ -126,7 +213,15 @@ class SamReader(GenomicDataReader):
         return chrom, start, start + reference_length - 1
 
     def chromosome_stats(self) -> pd.DataFrame:
-        """Возвращает pandas-таблицу с числом выравниваний по хромосомам."""
+        """Возвращает pandas-таблицу с числом выравниваний по хромосомам.
+
+        Пропускает несопоставленные записи (``chrom == "*"`` или ``pos == 0``).
+        Результат отсортирован по имени хромосомы.
+
+        Returns:
+            pd.DataFrame: Таблица с колонками ``chrom`` и ``alignments``,
+            содержащая число выравниваний для каждой хромосомы.
+        """
         counts = {}
         for record in self:
             chrom = record["chrom"]
