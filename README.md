@@ -22,7 +22,7 @@
 Клонируйте репозиторий и установите зависимости:
 
 ```bash
-git clone https://github.com/VvediteNickname/Classes-for-FASTA.git
+git clone https://github.com/VvediteNickname/14_Bio_Data.git
 cd 14_Bio_Data
 
 python -m venv .venv
